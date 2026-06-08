@@ -1,0 +1,239 @@
+PARTE 1.1 - Análise Crítica dos Requisitos
+
+a) Identificação de Lacunas e Ambiguidades
+
+1. Persistência das operações de escrita não esclarecida
+
+Problema:
+A documentação informa que a Controller Books possui operações POST, PUT e DELETE, porém não esclarece se os dados devem ser persistidos de fato ou apenas simulados pela API.
+
+Impacto potencial:
+Durante a exploração inicial, foi observado que POST, PUT e DELETE retornam status 200, porém as alterações não são mantidas em consultas posteriores via GET. Isso impacta diretamente testes E2E de CRUD, validação de consistência e automação.
+
+Como deveria ser esclarecida:
+Confirmar com o PO/time técnico se a API de referência é apenas mock/fake para simulação ou se a expectativa funcional é persistir os dados durante a sessão/teste.
+
+2. Regras de validação de campos obrigatórios não definidas
+
+Problema:
+O Swagger informa os campos do objeto Book, como id, title, description, pageCount, excerpt e publishDate, mas não define claramente quais campos são obrigatórios, quais aceitam nulo, limites mínimos/máximos e regras de preenchimento.
+
+Impacto potencial:
+Sem essa definição, não é possível afirmar com segurança se payloads incompletos, campos vazios, pageCount zerado/negativo ou datas inválidas devem ser aceitos ou rejeitados.
+
+Como deveria ser esclarecida:
+Definir obrigatoriedade, tamanho máximo de strings, regras para pageCount, formato aceito de publishDate e mensagens/status esperados em caso de payload inválido.
+
+3. Comportamento de erro não padronizado nos requisitos
+
+Problema:
+A documentação apresenta respostas de sucesso, mas não detalha todos os comportamentos esperados para cenários de erro, como ID inexistente, payload malformado, tipo de dado incorreto, método inválido ou falha interna.
+
+Impacto potencial:
+A ausência de padronização dificulta a validação de status codes, mensagens de erro, contrato de erro e tratamento adequado por consumidores da API.
+
+Como deveria ser esclarecida:
+Definir uma matriz de erros esperados com status codes, estrutura do response body, mensagens e exemplos para erros 400, 404, 405, 415 e 500.
+
+4. Relacionamento entre Books, Authors e CoverPhotos não especificado
+
+Problema:
+A documentação mostra recursos Authors e CoverPhotos com campo idBook, porém não define claramente as regras de relacionamento com Books.
+
+Impacto potencial:
+Não fica claro se é permitido criar autor/capa para livro inexistente, o que deve ocorrer ao excluir um livro com autores ou capas associados, nem se há validação de integridade referencial.
+
+Como deveria ser esclarecida:
+Definir regras de relacionamento entre livros, autores e capas, incluindo validação de idBook, comportamento em exclusão, registros órfãos e dependências entre módulos.
+
+5. Critérios de autenticação e autorização não informados
+
+Problema:
+A API possui recurso Users, mas a documentação não informa se os endpoints exigem autenticação, token, permissões ou perfis de acesso.
+
+Impacto potencial:
+Sem essa definição, não é possível validar corretamente segurança básica, acesso sem autenticação, manipulação de IDs, permissões por perfil ou exposição indevida de dados.
+
+Como deveria ser esclarecida:
+Confirmar se a entrega inicial terá autenticação/autorização. Caso sim, definir perfis, tokens, escopos de acesso, endpoints protegidos e comportamentos esperados para 401 e 403.
+
+6. Requisitos não funcionais ausentes
+
+Problema:
+Não foram definidos requisitos de performance, disponibilidade, volume de dados, tempo máximo de resposta, paginação, ordenação, filtros ou limite de registros retornados na listagem de livros.
+
+Impacto potencial:
+O endpoint GET /Books pode crescer com o tempo e apresentar lentidão, payloads grandes ou comportamento inconsistente sem paginação e thresholds definidos.
+
+Como deveria ser esclarecida:
+Definir tempo máximo aceitável por operação, volume esperado de registros, necessidade de paginação, filtros, ordenação e critérios mínimos de disponibilidade.
+
+b) Perguntas Críticas ao PO / Time de Desenvolvimento
+
+1. As operações POST, PUT e DELETE da Controller Books devem persistir os dados ou apenas simular o comportamento da API?
+
+Impacto: Alto
+
+Justificativa:
+Essa resposta é essencial para definir a estratégia dos testes E2E de CRUD, pois durante a exploração foi observado que as operações de escrita retornam 200, porém não mantêm as alterações em consultas posteriores via GET.
+
+2. Quais campos do objeto Book são obrigatórios e quais regras de validação devem ser aplicadas?
+
+Impacto: Alto
+
+Justificativa:
+É necessário confirmar regras para title, description, pageCount, excerpt e publishDate, incluindo obrigatoriedade, valores nulos, tamanho máximo, pageCount mínimo e formato de data. Isso define os cenários negativos, de borda e contrato.
+
+3. Qual deve ser o comportamento esperado ao enviar payload inválido, incompleto ou com tipos de dados incorretos?
+
+Impacto: Alto
+
+Justificativa:
+Sem essa definição, não é possível validar corretamente status codes, mensagens de erro e contrato de resposta para erros 400, 415 ou outros comportamentos esperados.
+
+4. Existe relacionamento obrigatório entre Books, Authors e CoverPhotos através do campo idBook?
+
+Impacto: Alto
+
+Justificativa:
+Essa resposta define os testes de integração e integridade referencial, como criação de autor/capa para livro inexistente, exclusão de livro com vínculos e tratamento de registros órfãos.
+
+5. Os endpoints da API devem exigir autenticação e autorização?
+
+Impacto: Alto
+
+Justificativa:
+A existência do recurso Users sugere possível controle de acesso, mas a documentação não informa regras de segurança. Isso impacta testes de acesso sem token, permissões, manipulação de IDs, 401 e 403.
+
+6. Quais requisitos não funcionais devem ser considerados para a API?
+
+Impacto: Médio
+
+Justificativa:
+É importante definir tempo máximo de resposta, volume esperado de dados, necessidade de paginação, ordenação, filtros e disponibilidade mínima para orientar testes de performance e escalabilidade.
+
+7. A listagem de livros deve possuir paginação, filtros ou ordenação?
+
+Impacto: Médio
+
+Justificativa:
+O endpoint GET /Books retorna uma lista completa. Caso o catálogo cresça, a ausência de paginação e filtros pode gerar lentidão, payloads grandes e dificuldade de consumo por sistemas clientes.
+
+8. Qual é o padrão esperado para mensagens de erro e response body em falhas?
+
+Impacto: Médio
+
+Justificativa:
+A padronização de erros melhora a previsibilidade para consumidores da API e permite validar contrato de erro, mensagens, traceId e status retornado.
+
+9. Existe limite máximo para pageCount, tamanho de title, description e excerpt?
+
+Impacto: Médio
+
+Justificativa:
+Essa definição é necessária para testes de borda, segurança básica, payloads grandes e validação de comportamento em campos textuais.
+
+10. A API será consumida por quais clientes ou sistemas futuramente?
+
+Impacto: Baixo
+
+Justificativa:
+Entender os consumidores da API ajuda a priorizar cenários mais críticos, validar compatibilidade de contrato e planejar melhor testes de integração.
+
+c) Mapeamento de Riscos
+
+1. Risco: Operações de escrita não persistirem dados
+
+Probabilidade: Alta
+Impacto: Alto
+
+Descrição:
+Durante a exploração inicial, foi observado que POST, PUT e DELETE retornam status 200, porém não mantêm as alterações em consultas posteriores via GET.
+
+Mitigação:
+Documentar o comportamento como limitação do ambiente FakeRESTApi, alinhar a expectativa com o PO/time técnico e adaptar os testes E2E e automatizados para validar o response imediato e registrar a ausência de persistência.
+
+
+2. Risco: Falta de validação de campos obrigatórios e regras de negócio
+
+Probabilidade: Alta
+Impacto: Alto
+
+Descrição:
+Os requisitos não definem quais campos do objeto Book são obrigatórios, quais aceitam nulo, quais possuem limite de tamanho e quais regras devem ser aplicadas para pageCount e publishDate.
+
+Mitigação:
+Solicitar matriz de validação dos campos, criar testes negativos e de borda, e registrar ambiguidades até que as regras sejam formalizadas.
+
+
+3. Risco: Quebra de contrato para consumidores da API
+
+Probabilidade: Média
+Impacto: Alto
+
+Descrição:
+Alterações em campos, tipos de dados, status codes ou estrutura de resposta podem impactar futuros consumidores da API, como front-end, mobile ou integrações externas.
+
+Mitigação:
+Implementar testes de contrato/schema baseados no Swagger/OpenAPI, versionar contratos e executar validações automatizadas na pipeline.
+
+
+4. Risco: Dados órfãos entre Books, Authors e CoverPhotos
+
+Probabilidade: Média
+Impacto: Alto
+
+Descrição:
+Authors e CoverPhotos possuem relacionamento por idBook, mas não há regra clara sobre integridade referencial. A exclusão de um livro pode gerar autores ou capas órfãs.
+
+Mitigação:
+Criar testes de integração entre Books, Authors e CoverPhotos, validar comportamento de exclusão e solicitar definição de regra para cascade, bloqueio ou limpeza de dependências.
+
+
+5. Risco: Ausência de autenticação e autorização
+
+Probabilidade: Média
+Impacto: Alto
+
+Descrição:
+A documentação possui recurso Users, mas não informa se os endpoints exigem autenticação, token ou permissões.
+
+Mitigação:
+Confirmar requisitos de segurança com o PO/time técnico e incluir testes de acesso sem autenticação, manipulação de IDs, tentativa de acesso indevido e validação de status 401/403, se aplicável.
+
+
+6. Risco: Performance degradada em listagens
+
+Probabilidade: Média
+Impacto: Médio
+
+Descrição:
+O endpoint GET /Books retorna lista completa e não há definição de paginação, filtros, ordenação ou limite de registros.
+
+Mitigação:
+Definir threshold de tempo de resposta, validar comportamento com volume maior de dados, sugerir paginação/filtros e incluir teste básico de performance.
+
+
+7. Risco: Falta de padronização em respostas de erro
+
+Probabilidade: Média
+Impacto: Médio
+
+Descrição:
+A documentação não apresenta matriz completa de erros esperados para payload inválido, ID inexistente, tipo incorreto, content-type inválido ou falha interna.
+
+Mitigação:
+Validar os principais cenários negativos, documentar status e body retornados, e propor padronização de contrato de erro.
+
+
+8. Risco: Disponibilidade da API externa FakeRESTApi
+
+Probabilidade: Média
+Impacto: Médio
+
+Descrição:
+A API está hospedada externamente e pode apresentar indisponibilidade, lentidão ou instabilidade durante a execução dos testes.
+
+Mitigação:
+Registrar evidências com data/hora, prever reexecução em caso de indisponibilidade, isolar falhas de ambiente e evitar classificar indisponibilidade externa como falha funcional sem confirmação.
+

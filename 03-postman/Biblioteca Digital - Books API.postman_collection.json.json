@@ -1,0 +1,1261 @@
+{
+  "info": {
+    "_postman_id": "6a048f3b-2d83-4167-a6ad-5e2a4acef2ce",
+    "name": "API Biblioteca Digital - Books",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "38628872"
+  },
+  "item": [
+    {
+      "name": "Books",
+      "item": [
+        {
+          "name": "CT-001 - Listar todos os livros",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve ser uma lista\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Lista deve possuir pelo menos um livro\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Primeiro livro deve possuir os campos esperados\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    const book = jsonData[0];\r",
+                  "\r",
+                  "    pm.expect(book).to.have.property(\"id\");\r",
+                  "    pm.expect(book).to.have.property(\"title\");\r",
+                  "    pm.expect(book).to.have.property(\"description\");\r",
+                  "    pm.expect(book).to.have.property(\"pageCount\");\r",
+                  "    pm.expect(book).to.have.property(\"excerpt\");\r",
+                  "    pm.expect(book).to.have.property(\"publishDate\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-002 - Consultar livro existente por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar um objeto\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro retornado deve possuir id igual ao bookId\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.id).to.eql(Number(pm.environment.get(\"bookId\")));\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro deve possuir os campos esperados\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData).to.have.property(\"id\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"title\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"description\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"pageCount\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"excerpt\");\r",
+                  "    pm.expect(jsonData).to.have.property(\"publishDate\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books/{{bookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books",
+                "{{bookId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-003 - Consultar livro inexistente por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar objeto de erro\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Erro deve possuir title Not Found\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.title).to.eql(\"Not Found\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Erro deve possuir status 404\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.status).to.eql(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books/{{invalidBookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books",
+                "{{invalidBookId}}"
+              ],
+              "query": [
+                {
+                  "key": "accept",
+                  "value": "text/plain; v=1.0",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-004 - Criar livro com payload válido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar um objeto\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro criado deve retornar o id enviado\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.id).to.eql(Number(pm.environment.get(\"createdBookId\")));\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro criado deve retornar os dados enviados\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.title).to.eql(\"Livro Teste QA Emerson\");\r",
+                  "    pm.expect(jsonData.description).to.eql(\"Livro criado para validação de API no desafio técnico de QA.\");\r",
+                  "    pm.expect(jsonData.pageCount).to.eql(250);\r",
+                  "    pm.expect(jsonData.excerpt).to.eql(\"Trecho de teste para validação do cadastro de livro.\");\r",
+                  "    pm.expect(jsonData.publishDate).to.eql(\"2026-06-05T20:00:00Z\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 501,\r\n  \"title\": \"Livro Teste QA Emerson\",\r\n  \"description\": \"Livro criado para validação de API no desafio técnico de QA.\",\r\n  \"pageCount\": 250,\r\n  \"excerpt\": \"Trecho de teste para validação do cadastro de livro.\",\r\n  \"publishDate\": \"2026-06-05T20:00:00.000Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-005 - Validar persistência após criação de livro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar objeto de erro\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Erro deve possuir title Not Found\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.title).to.eql(\"Not Found\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Erro deve possuir status 404\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.status).to.eql(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books/{{createdBookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books",
+                "{{createdBookId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-006 - Atualizar livro existente com payload válido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar um objeto\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro atualizado deve retornar o id enviado\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.id).to.eql(Number(pm.environment.get(\"bookId\")));\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro atualizado deve retornar os dados enviados\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.title).to.eql(\"Book 1 Atualizado QA\");\r",
+                  "    pm.expect(jsonData.description).to.eql(\"Atualização realizada para validação do endpoint PUT no desafio técnico.\");\r",
+                  "    pm.expect(jsonData.pageCount).to.eql(321);\r",
+                  "    pm.expect(jsonData.excerpt).to.eql(\"Trecho atualizado para teste.\");\r",
+                  "    pm.expect(jsonData.publishDate).to.eql(\"2026-06-05T21:00:00Z\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 1,\r\n  \"title\": \"Book 1 Atualizado QA\",\r\n  \"description\": \"Atualização realizada para validação do endpoint PUT no desafio técnico.\",\r\n  \"pageCount\": 321,\r\n  \"excerpt\": \"Trecho atualizado para teste.\",\r\n  \"publishDate\": \"2026-06-05T21:00:00.000Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books/{{bookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books",
+                "{{bookId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-007 - Validar persistência após atualização de livro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar um objeto\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro consultado deve possuir id igual ao bookId\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.id).to.eql(Number(pm.environment.get(\"bookId\")));\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Atualização não deve estar persistida\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.title).to.eql(\"Book 1\");\r",
+                  "    pm.expect(jsonData.title).to.not.eql(\"Book 1 Atualizado QA\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books/{{bookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books",
+                "{{bookId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-008 - Deletar livro existente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response body deve estar vazio\", function () {\r",
+                  "    pm.expect(pm.response.text()).to.eql(\"\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books/{{bookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books",
+                "{{bookId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-009 - Validar persistência após exclusão de livro",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar um objeto\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro consultado deve possuir id igual ao bookId\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.id).to.eql(Number(pm.environment.get(\"bookId\")));\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Exclusão não deve estar persistida\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.title).to.eql(\"Book 1\");\r",
+                  "    pm.expect(jsonData.id).to.eql(Number(pm.environment.get(\"bookId\")));\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books/{{bookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books",
+                "{{bookId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-010 - Validar schema do objeto Book na listagem",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar uma lista\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Lista deve possuir pelo menos um livro\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Todos os livros devem possuir os campos esperados\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    jsonData.forEach(function (book) {\r",
+                  "        pm.expect(book).to.have.property(\"id\");\r",
+                  "        pm.expect(book).to.have.property(\"title\");\r",
+                  "        pm.expect(book).to.have.property(\"description\");\r",
+                  "        pm.expect(book).to.have.property(\"pageCount\");\r",
+                  "        pm.expect(book).to.have.property(\"excerpt\");\r",
+                  "        pm.expect(book).to.have.property(\"publishDate\");\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Todos os livros devem possuir tipos compatíveis com o schema\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    jsonData.forEach(function (book) {\r",
+                  "        pm.expect(book.id).to.be.a(\"number\");\r",
+                  "        pm.expect(book.title).to.be.a(\"string\");\r",
+                  "        pm.expect(book.description).to.be.a(\"string\");\r",
+                  "        pm.expect(book.pageCount).to.be.a(\"number\");\r",
+                  "        pm.expect(book.excerpt).to.be.a(\"string\");\r",
+                  "        pm.expect(book.publishDate).to.be.a(\"string\");\r",
+                  "    });\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-011 - Consultar livro com ID negativo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar objeto de erro\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Erro deve possuir title Not Found\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.title).to.eql(\"Not Found\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Erro deve possuir status 404\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.status).to.eql(404);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books/-1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books",
+                "-1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-012 - Criar livro com payload incompleto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar um objeto\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro criado deve retornar o id e title enviados\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.id).to.eql(502);\r",
+                  "    pm.expect(jsonData.title).to.eql(\"Livro Payload Incompleto\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Campos não enviados retornam valores padrão\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.description).to.eql(null);\r",
+                  "    pm.expect(jsonData.pageCount).to.eql(0);\r",
+                  "    pm.expect(jsonData.excerpt).to.eql(null);\r",
+                  "    pm.expect(jsonData.publishDate).to.eql(\"0001-01-01T00:00:00\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 502,\r\n  \"title\": \"Livro Payload Incompleto\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-013 - Criar livro com pageCount negativo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar um objeto\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro criado deve retornar o id e title enviados\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.id).to.eql(503);\r",
+                  "    pm.expect(jsonData.title).to.eql(\"Livro PageCount Negativo\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"API aceitou pageCount negativo\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.pageCount).to.eql(-10);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 503,\r\n  \"title\": \"Livro PageCount Negativo\",\r\n  \"description\": \"Teste para validar comportamento com pageCount negativo.\",\r\n  \"pageCount\": -10,\r\n  \"excerpt\": \"Trecho de teste para pageCount negativo.\",\r\n  \"publishDate\": \"2026-06-05T20:30:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-014 - Criar livro com script no title",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar um objeto\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro criado deve retornar o id enviado\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.id).to.eql(504);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"API aceitou script no campo title\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.title).to.eql(\"<script>alert('teste')</script>\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 504,\r\n  \"title\": \"<script>alert('teste')</script>\",\r\n  \"description\": \"Teste para validar comportamento com script no campo title.\",\r\n  \"pageCount\": 120,\r\n  \"excerpt\": \"Trecho de teste para validação de segurança básica.\",\r\n  \"publishDate\": \"2026-06-05T20:45:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-015 - Criar livro com tentativa de SQL Injection no título",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar um objeto\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Livro criado deve retornar o id enviado\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.id).to.eql(505);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"API aceitou tentativa de SQL Injection no campo title\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.title).to.eql(\"' OR '1'='1\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 505,\r\n  \"title\": \"' OR '1'='1\",\r\n  \"description\": \"Teste para validar comportamento com tentativa de SQL Injection no campo title.\",\r\n  \"pageCount\": 150,\r\n  \"excerpt\": \"Trecho de teste para validação de segurança básica.\",\r\n  \"publishDate\": \"2026-06-05T21:00:00Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-016 - Criar livro com publishDate inválido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 400\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar objeto de erro\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"object\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Erro deve possuir status 400\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.status).to.eql(400);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Erro deve indicar problema no campo publishDate\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    pm.expect(jsonData.errors).to.have.property(\"$.publishDate\");\r",
+                  "    pm.expect(jsonData.errors[\"$.publishDate\"][0]).to.include(\"System.DateTime\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "{{contentType}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"id\": 506,\r\n  \"title\": \"Livro PublishDate Invalido\",\r\n  \"description\": \"Teste para validar comportamento com publishDate em formato inválido.\",\r\n  \"pageCount\": 180,\r\n  \"excerpt\": \"Trecho de teste para validação de data inválida.\",\r\n  \"publishDate\": \"data-invalida\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-017 - Validar tempo de resposta da listagem de livros",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar uma lista\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Lista deve possuir pelo menos um livro\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Tempo de resposta deve ser monitorado\", function () {\r",
+                  "    console.log(\"Tempo de resposta em ms:\", pm.response.responseTime);\r",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Books"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-018 - Validar autores associados a um livro existente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar uma lista de autores\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Lista deve possuir pelo menos um autor\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Todos os autores devem estar vinculados ao bookId informado\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    const bookId = Number(pm.environment.get(\"bookId\"));\r",
+                  "\r",
+                  "    jsonData.forEach(function (author) {\r",
+                  "        pm.expect(author).to.have.property(\"idBook\");\r",
+                  "        pm.expect(author.idBook).to.eql(bookId);\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Autores devem possuir campos esperados\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    jsonData.forEach(function (author) {\r",
+                  "        pm.expect(author).to.have.property(\"id\");\r",
+                  "        pm.expect(author).to.have.property(\"idBook\");\r",
+                  "        pm.expect(author).to.have.property(\"firstName\");\r",
+                  "        pm.expect(author).to.have.property(\"lastName\");\r",
+                  "    });\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/Authors/authors/books/{{bookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "Authors",
+                "authors",
+                "books",
+                "{{bookId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CT-019 - Validar capas associadas a um livro existente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code deve ser 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response deve retornar uma lista de capas\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData).to.be.an(\"array\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Lista deve possuir pelo menos uma capa\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    pm.expect(jsonData.length).to.be.greaterThan(0);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Todas as capas devem estar vinculadas ao bookId informado\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "    const bookId = Number(pm.environment.get(\"bookId\"));\r",
+                  "\r",
+                  "    jsonData.forEach(function (cover) {\r",
+                  "        pm.expect(cover).to.have.property(\"idBook\");\r",
+                  "        pm.expect(cover.idBook).to.eql(bookId);\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Capas devem possuir campos esperados\", function () {\r",
+                  "    const jsonData = pm.response.json();\r",
+                  "\r",
+                  "    jsonData.forEach(function (cover) {\r",
+                  "        pm.expect(cover).to.have.property(\"id\");\r",
+                  "        pm.expect(cover).to.have.property(\"idBook\");\r",
+                  "        pm.expect(cover).to.have.property(\"url\");\r",
+                  "    });\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "accept",
+                "value": "text/plain; v=1.0",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/CoverPhotos/books/covers/{{bookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "CoverPhotos",
+                "books",
+                "covers",
+                "{{bookId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

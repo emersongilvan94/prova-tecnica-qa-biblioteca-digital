@@ -1,0 +1,137 @@
+RESPOSTAS ÀS QUESTÕES SITUACIONAIS
+Prova Técnica - Analista de Qualidade Pleno
+Sistema: API Biblioteca Digital
+Responsável: Emerson Gilvan
+
+1. Escolha e Justificativa do Framework de Automação
+
+Framework escolhido:
+Postman + scripts JavaScript em Post-response, com possibilidade de execução via Collection Runner ou Newman.
+
+Justificativa:
+O Postman foi escolhido por ser uma ferramenta adequada para testes de API REST, permitindo validação de status code, response body, contrato/schema, headers, campos obrigatórios, cenários negativos, integração entre endpoints e performance básica.
+
+Além disso, o Postman permite automatizar validações diretamente nas requests por meio de scripts JavaScript, facilitando a execução manual, a documentação das evidências e a exportação da Collection e do Environment.
+
+Para execução em pipeline CI/CD, a Collection pode ser executada via Newman, permitindo integração com Azure DevOps, GitHub Actions, GitLab CI ou Jenkins.
+
+2. Por que este framework é adequado para o contexto?
+
+A entrega solicitada é uma API REST sem front-end, com foco na Controller Books. Por isso, uma ferramenta especializada em testes de API é mais adequada do que um framework voltado principalmente para interface gráfica.
+
+O Postman permite:
+- Criar Collection organizada por cenário.
+- Utilizar Environment com variáveis como baseUrl, bookId e invalidBookId.
+- Validar status codes.
+- Validar schema/contrato.
+- Validar respostas de erro.
+- Validar integrações entre Books, Authors e CoverPhotos.
+- Executar testes em lote.
+- Exportar artefatos em JSON.
+- Executar via Newman em linha de comando.
+
+3. Limitações do framework escolhido
+
+Apesar de ser adequado para testes de API, o Postman possui algumas limitações:
+
+- Não é tão robusto quanto frameworks de código puro para cenários complexos de arquitetura de testes.
+- Controle avançado de massa de dados pode ficar limitado em cenários maiores.
+- Relatórios mais completos geralmente dependem de Newman reporters ou integração adicional.
+- Para validações muito complexas, frameworks como Playwright API, Cypress API, REST Assured ou Robot Framework podem oferecer mais flexibilidade.
+- Como a FakeRESTApi não persiste dados após POST, PUT e DELETE, o fluxo E2E completo fica limitado pelo comportamento da API utilizada.
+
+4. Como o framework se integra ao CI/CD?
+
+A integração pode ser feita utilizando Newman.
+
+Exemplo de comando:
+
+newman run "../03-postman/Biblioteca Digital - Books API.postman_collection.json" -e "../03-postman/BibliotecaDigital_ENV.postman_environment.json"
+
+Esse comando pode ser configurado em uma pipeline de CI/CD, como:
+- Azure DevOps Pipelines
+- GitHub Actions
+- GitLab CI
+- Jenkins
+
+A pipeline pode instalar o Node.js, instalar o Newman e executar a Collection a cada build, release ou alteração de código.
+
+5. Alternativas consideradas
+
+Cypress:
+Foi considerado, mas descartado como principal opção porque é mais utilizado para automação de front-end, embora também permita testes de API. Como o desafio é focado em API REST, o Postman/Newman foi mais direto e aderente.
+
+Robot Framework:
+Foi considerado, mas exigiria criação de um projeto separado, instalação de bibliotecas e maior estrutura inicial. Para o prazo da prova, Postman/Newman foi mais objetivo.
+
+Playwright API:
+Foi considerado, mas também exigiria criação de projeto Node.js, estrutura de testes e configuração adicional. Como o enunciado solicitava Collection Postman e Environment, o Postman foi priorizado.
+
+REST Assured:
+Foi considerado, mas exigiria projeto Java e maior configuração inicial. Para o contexto da entrega e prazo curto, não foi a melhor escolha.
+
+6. Teste E2E obrigatório
+
+O fluxo E2E solicitado era:
+
+Criar livro -> Verificar criação via GET -> Atualizar título -> Verificar atualização -> Deletar -> Verificar retorno 404.
+
+Durante a execução foi identificado que a FakeRESTApi retorna sucesso nas operações POST, PUT e DELETE, porém não persiste alteração de estado.
+
+Resultado observado:
+- POST retornou 200 com o objeto enviado.
+- GET posterior para o livro criado retornou 404.
+- PUT retornou 200 com objeto atualizado.
+- GET posterior retornou o dado original.
+- DELETE retornou 200.
+- GET posterior continuou retornando o livro original.
+
+Conclusão:
+O fluxo E2E completo foi implementado e validado por meio dos CT-004 a CT-009, porém com ressalva devido à limitação da FakeRESTApi. Em uma API real, o esperado seria persistência dos dados entre as operações.
+
+7. Teste de Schema obrigatório
+
+O teste de schema foi implementado no CT-010.
+
+Validações realizadas:
+- Response deve retornar uma lista.
+- Lista deve possuir pelo menos um livro.
+- Todos os objetos Book devem possuir os campos esperados:
+  - id
+  - title
+  - description
+  - pageCount
+  - excerpt
+  - publishDate
+- Tipos dos campos devem ser compatíveis:
+  - id: number
+  - title: string
+  - description: string
+  - pageCount: number
+  - excerpt: string
+  - publishDate: string
+
+Resultado:
+Teste aprovado com Postman Test Results 5/5.
+
+8. Como eu lidaria com a ausência de persistência?
+
+Eu registraria o comportamento como ressalva/limitação do ambiente FakeRESTApi e alinharia com o PO ou time técnico se a expectativa funcional é apenas simulação ou persistência real.
+
+Caso fosse uma API produtiva, esse comportamento seria classificado como bug de severidade alta ou crítica, pois operações de escrita aparentariam sucesso sem alterar o estado real da aplicação.
+
+9. Como eu priorizaria os testes em caso de pouco tempo?
+
+Eu priorizaria:
+1. GET /Books e GET /Books/{id}, por serem endpoints de leitura e base para consumidores.
+2. POST, PUT e DELETE, por representarem o CRUD principal.
+3. Validação de contrato/schema.
+4. Cenários negativos de maior risco, como ID inexistente e payload inválido.
+5. Integrações Books x Authors e Books x CoverPhotos.
+6. Segurança básica e performance básica.
+
+10. Conclusão
+
+A estratégia adotada priorizou risco, contrato, funcionalidade principal, comportamento real da API e automação viável dentro do prazo.
+
+A escolha por Postman + Newman foi adequada ao contexto por se tratar de uma prova focada em API REST, permitindo entregar Collection, Environment, scripts automatizados, evidências e README com instruções de execução.

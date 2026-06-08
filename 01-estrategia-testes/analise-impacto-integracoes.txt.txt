@@ -1,0 +1,188 @@
+PARTE 1.3 - Análise de Impacto e Integrações
+
+1. Dependências entre Books e demais recursos
+
+A Controller Books representa o recurso central da API Biblioteca Digital, pois concentra a gestão do catálogo de livros. Os demais recursos possuem relação direta ou indireta com Books.
+
+Mapa de dependências:
+
+Recurso: Authors
+Dependência com Books:
+O recurso Authors possui o campo idBook, indicando vínculo entre autor e livro.
+
+Impacto:
+Caso um livro não exista, deve ser esclarecido se é permitido criar autor vinculado a esse idBook. Também deve ser definido o comportamento ao excluir um livro que possui autores associados.
+
+
+Recurso: CoverPhotos
+Dependência com Books:
+O recurso CoverPhotos possui o campo idBook, indicando vínculo entre capa e livro.
+
+Impacto:
+Caso um livro seja excluído, deve ser definido se a capa associada será removida, mantida, bloqueada ou tratada como registro órfão.
+
+
+Recurso: Activities
+Dependência com Books:
+A documentação não apresenta relacionamento explícito entre Activities e Books.
+
+Impacto:
+Pode existir dependência de negócio futura, como atividades de bibliotecários relacionadas ao cadastro, revisão ou manutenção de livros. Essa relação precisa ser esclarecida com o PO/time técnico.
+
+
+Recurso: Users
+Dependência com Books:
+A documentação não apresenta relacionamento direto entre Users e Books, porém usuários podem futuramente executar ações sobre livros, como cadastrar, editar ou remover registros.
+
+Impacto:
+Caso exista autenticação/autorização, será necessário validar permissões de acesso às operações da Controller Books.
+
+
+Tabela resumida de dependências:
+
+Books x Authors:
+Tipo de relação: Direta
+Campo relacionado: idBook
+Risco: Autor vinculado a livro inexistente ou registro órfão após exclusão.
+
+Books x CoverPhotos:
+Tipo de relação: Direta
+Campo relacionado: idBook
+Risco: Capa vinculada a livro inexistente ou registro órfão após exclusão.
+
+Books x Activities:
+Tipo de relação: Indireta / não especificada
+Campo relacionado: Não informado
+Risco: Atividades de bibliotecários podem depender de livros, mas o requisito não esclarece.
+
+Books x Users:
+Tipo de relação: Indireta / segurança
+Campo relacionado: Não informado
+Risco: Operações em livros podem exigir usuário autenticado ou perfil de acesso.
+
+
+2. Cenários que envolvem mais de um recurso simultaneamente
+
+Cenário 1: Consultar livro e autores associados
+
+Recursos envolvidos:
+Books + Authors
+
+Fluxo:
+1. Consultar um livro existente em GET /api/v1/Books/{id}.
+2. Consultar autores associados em GET /api/v1/Authors/authors/books/{idBook}.
+3. Validar se os autores retornados possuem idBook correspondente ao livro consultado.
+
+Risco validado:
+Inconsistência entre livro e autores vinculados.
+
+
+Cenário 2: Consultar livro e capas associadas
+
+Recursos envolvidos:
+Books + CoverPhotos
+
+Fluxo:
+1. Consultar um livro existente em GET /api/v1/Books/{id}.
+2. Consultar capas associadas em GET /api/v1/CoverPhotos/books/covers/{idBook}.
+3. Validar se as capas retornadas possuem idBook correspondente ao livro consultado.
+
+Risco validado:
+Capa associada a livro incorreto ou inexistente.
+
+
+Cenário 3: Criar autor para livro inexistente
+
+Recursos envolvidos:
+Books + Authors
+
+Fluxo:
+1. Consultar livro inexistente em GET /api/v1/Books/{id}.
+2. Confirmar retorno 404.
+3. Tentar criar autor usando o mesmo idBook inexistente.
+4. Validar se a API permite ou bloqueia o vínculo.
+
+Risco validado:
+Criação de registro órfão por ausência de validação de idBook.
+
+
+Cenário 4: Criar capa para livro inexistente
+
+Recursos envolvidos:
+Books + CoverPhotos
+
+Fluxo:
+1. Consultar livro inexistente em GET /api/v1/Books/{id}.
+2. Confirmar retorno 404.
+3. Tentar criar capa usando o mesmo idBook inexistente.
+4. Validar se a API permite ou bloqueia o vínculo.
+
+Risco validado:
+Capa órfã vinculada a livro inexistente.
+
+
+Cenário 5: Excluir livro com autor ou capa associada
+
+Recursos envolvidos:
+Books + Authors + CoverPhotos
+
+Fluxo:
+1. Consultar livro existente.
+2. Consultar autores e capas associados ao livro.
+3. Executar DELETE /api/v1/Books/{id}.
+4. Consultar novamente autores e capas associados.
+5. Validar se houve remoção, bloqueio, manutenção ou geração de registros órfãos.
+
+Risco validado:
+Perda de integridade referencial após exclusão de livro.
+
+
+3. Impacto de falhas na Controller Books nos demais módulos
+
+Falha em GET /Books:
+Impacto:
+Consumidores da API podem não conseguir listar o catálogo de livros, impactando front-end, mobile, integrações e processos de consulta.
+
+Falha em GET /Books/{id}:
+Impacto:
+Pode impedir a visualização detalhada de um livro e comprometer integrações com autores, capas e atividades relacionadas.
+
+Falha em POST /Books:
+Impacto:
+Novos livros não poderão ser cadastrados no catálogo, afetando a gestão da biblioteca digital.
+
+Falha em PUT /Books/{id}:
+Impacto:
+Correções ou atualizações cadastrais de livros não serão aplicadas, podendo manter dados desatualizados ou incorretos.
+
+Falha em DELETE /Books/{id}:
+Impacto:
+Livros inválidos ou removidos podem continuar disponíveis no catálogo. Também pode haver risco de inconsistência com Authors e CoverPhotos.
+
+Falha no contrato/schema de Books:
+Impacto:
+Consumidores da API podem quebrar ao receber campos ausentes, tipos incorretos ou formato inesperado, principalmente em integrações futuras.
+
+Falha na persistência de Books:
+Impacto:
+Operações de escrita podem aparentar sucesso, mas não refletir no estado real da aplicação, gerando falso positivo em testes, inconsistência funcional e perda de confiança na API.
+
+4. Mapa de dependências consolidado
+
+| Recurso Origem | Recurso Relacionado | Tipo de Dependência | Campo/Referência | Risco Principal | Teste Recomendado |
+|---|---|---|---|---|---|
+| Books | Authors | Direta | idBook | Autor vinculado a livro inexistente | Consultar livro e validar autores por idBook |
+| Books | CoverPhotos | Direta | idBook | Capa vinculada a livro inexistente | Consultar livro e validar capas por idBook |
+| Books | Activities | Indireta / não especificada | Não informado | Atividades podem depender de livros sem regra clara | Solicitar esclarecimento ao PO e validar cenários futuros |
+| Books | Users | Indireta / segurança | Não informado | Operações em livros podem exigir autenticação/autorização | Validar acesso sem token e permissões, se aplicável |
+
+
+5. Conclusão da análise de impacto
+
+A Controller Books deve ser tratada como recurso central da API Biblioteca Digital, pois representa o catálogo de livros e pode impactar diretamente recursos relacionados, como Authors e CoverPhotos.
+
+A ausência de regras claras de relacionamento e integridade referencial representa risco para a consistência dos dados, principalmente em cenários de criação de autores/capas para livros inexistentes ou exclusão de livros com registros associados.
+
+Também foi observado durante a exploração inicial que operações de escrita em Books retornam sucesso, porém não persistem alterações. Essa limitação impacta fluxos E2E de CRUD, automação e validações de consistência, devendo ser documentada como restrição do ambiente FakeRESTApi.
+
+Recomenda-se que os testes de integração priorizem os relacionamentos entre Books, Authors e CoverPhotos, além da validação de contrato/schema e comportamento de erro para evitar que consumidores futuros da API sejam impactados por respostas inconsistentes.

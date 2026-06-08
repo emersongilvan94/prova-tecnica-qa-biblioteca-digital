@@ -1,0 +1,551 @@
+PARTE 1.2 - Estratégia de Testes
+
+Sistema: API Biblioteca Digital
+Controller foco: Books
+Base URL: https://fakerestapi.azurewebsites.net
+Swagger: https://fakerestapi.azurewebsites.net/index.html
+
+---
+
+## 1. Escopo
+
+O objetivo desta estratégia é definir a abordagem de testes para a API Biblioteca Digital, com foco principal na Controller Books, responsável pela gestão do catálogo de livros.
+
+### Dentro do escopo
+
+* Validação dos endpoints da Controller Books:
+
+  * GET /api/v1/Books
+  * GET /api/v1/Books/{id}
+  * POST /api/v1/Books
+  * PUT /api/v1/Books/{id}
+  * DELETE /api/v1/Books/{id}
+
+* Validação de operações CRUD da entidade Book.
+
+* Validação de status codes retornados.
+
+* Validação do contrato/schema do objeto Book.
+
+* Validação de headers e content-type.
+
+* Validação de payloads válidos, inválidos, incompletos e malformados.
+
+* Validação de IDs existentes, inexistentes, negativos e inválidos.
+
+* Validação de regras básicas para campos como id, title, description, pageCount, excerpt e publishDate.
+
+* Validação de comportamento de erro.
+
+* Validação básica de segurança, incluindo script em campos textuais, tentativa de SQL Injection e manipulação de IDs.
+
+* Validação básica de performance, considerando tempo de resposta da listagem de livros.
+
+* Validação de cenários de integração entre Books, Authors e CoverPhotos.
+
+* Registro de limitações observadas durante a execução, como ausência de persistência real em operações POST, PUT e DELETE.
+
+### Fora do escopo
+
+* Validação de interface gráfica, pois a entrega contempla testes de API.
+* Testes completos de autenticação e autorização, pois não há requisito claro indicando uso de token, login ou perfis de acesso.
+* Testes avançados de carga, estresse e escalabilidade, pois não foram definidos volumes esperados, infraestrutura-alvo ou thresholds oficiais de performance.
+* Validação profunda dos módulos Users, Activities, Authors e CoverPhotos, exceto quando houver dependência direta com Books em cenários de integração.
+* Validação de banco de dados diretamente, pois não foi fornecido acesso à base de dados ou documentação de persistência.
+* Testes de acessibilidade e usabilidade, por não haver interface de usuário nesta entrega.
+
+### Justificativa das exclusões
+
+As exclusões foram definidas com base nas informações disponíveis no desafio técnico e na documentação Swagger. Como o foco principal solicitado é a Controller Books e a entrega é voltada para API, a estratégia prioriza validações funcionais, contrato/schema, cenários negativos, borda, integração, segurança básica, performance básica e comportamento real dos endpoints expostos.
+
+---
+
+## 2. Abordagem
+
+A abordagem de testes foi baseada em risco, contrato da API e comportamento real observado durante a exploração e execução dos casos na Controller Books.
+
+Os testes foram executados utilizando Postman. A automação foi implementada diretamente na Collection Postman, por meio de scripts JavaScript em Post-response, com validações de status code, estrutura da resposta, campos esperados, dados retornados, cenários negativos, integração e tempo de resposta.
+
+A Collection também pode ser executada em lote pelo Collection Runner do Postman ou via Newman pela linha de comando.
+
+---
+
+## 2.1 Testes Funcionais
+
+### Objetivo
+
+Validar se os endpoints da Controller Books respondem corretamente às operações principais de negócio: listar, buscar por ID, criar, atualizar e remover livros.
+
+### Aplicação
+
+* GET /api/v1/Books
+* GET /api/v1/Books/{id}
+* POST /api/v1/Books
+* PUT /api/v1/Books/{id}
+* DELETE /api/v1/Books/{id}
+
+### Justificativa
+
+A Controller Books é o foco principal da entrega e representa a gestão do catálogo de livros. Por isso, o CRUD foi validado prioritariamente.
+
+---
+
+## 2.2 Testes de Contrato / Schema
+
+### Objetivo
+
+Validar se as respostas da API seguem o contrato esperado conforme Swagger/OpenAPI e comportamento retornado pela API.
+
+### Validações
+
+* Presença dos campos:
+
+  * id
+  * title
+  * description
+  * pageCount
+  * excerpt
+  * publishDate
+
+* Tipo de dado de cada campo.
+
+* Formato de publishDate como date-time.
+
+* Estrutura esperada para respostas de sucesso.
+
+* Estrutura esperada para respostas de erro.
+
+### Justificativa
+
+Como a API pode ser consumida futuramente por front-end, mobile ou integrações externas, manter o contrato estável é essencial para evitar quebras entre sistemas.
+
+---
+
+## 2.3 Testes Negativos
+
+### Objetivo
+
+Validar o comportamento da API em entradas inválidas ou situações não esperadas.
+
+### Cenários considerados
+
+* ID inexistente.
+* ID negativo.
+* Payload incompleto.
+* Data inválida no campo publishDate.
+* Campos com valores fora do padrão esperado.
+
+### Justificativa
+
+Os requisitos não detalham todos os comportamentos de erro. Por isso, os testes negativos ajudam a identificar inconsistências, ausência de validação e possíveis falhas de contrato.
+
+---
+
+## 2.4 Testes de Borda
+
+### Objetivo
+
+Validar o comportamento da API com valores no limite ou fora do padrão esperado.
+
+### Cenários considerados
+
+* pageCount negativo.
+* Payload incompleto.
+* Campos textuais com conteúdo potencialmente malicioso.
+* publishDate com formato inválido.
+
+### Justificativa
+
+Testes de borda ajudam a encontrar falhas de validação que não aparecem nos fluxos positivos.
+
+---
+
+## 2.5 Testes de Segurança Básica
+
+### Objetivo
+
+Verificar comportamentos básicos de segurança nos campos textuais e endpoints.
+
+### Cenários considerados
+
+* Envio de script no campo title.
+* Envio de tentativa de SQL Injection no campo title.
+* Manipulação de IDs.
+
+### Justificativa
+
+Mesmo em uma API de catálogo, campos textuais e manipulação de IDs podem representar risco para consumidores ou sistemas integrados, principalmente se esses dados forem exibidos futuramente em uma interface sem sanitização adequada.
+
+---
+
+## 2.6 Testes de Performance Básica
+
+### Objetivo
+
+Validar se o endpoint de listagem responde dentro de um tempo aceitável em cenário básico.
+
+### Cenário considerado
+
+* Medição de tempo de resposta para GET /api/v1/Books.
+
+### Critério utilizado
+
+A referência inicial considerada foi até 1000 ms para operação simples de leitura. Durante a execução, também foi monitorado limite técnico de até 1500 ms no script automatizado do Postman.
+
+### Justificativa
+
+Embora não existam requisitos formais de performance, é importante validar o comportamento mínimo de resposta e registrar ressalvas quando o tempo observado ultrapassar a referência inicial definida na estratégia.
+
+---
+
+## 2.7 Testes de Integração
+
+### Objetivo
+
+Validar dependências entre Books e outros recursos relacionados.
+
+### Cenários considerados
+
+* Books x Authors, considerando vínculo por idBook.
+* Books x CoverPhotos, considerando vínculo por idBook.
+
+### Justificativa
+
+A documentação sugere relacionamento entre entidades, mas não define todas as regras de negócio. Esses testes ajudam a identificar riscos de integridade referencial e consistência entre recursos relacionados.
+
+---
+
+## 2.8 Testes de Idempotência e Consistência
+
+### Objetivo
+
+Validar se operações de escrita produzem comportamento consistente em consultas posteriores.
+
+### Cenários considerados
+
+* Consultar via GET após POST.
+* Consultar via GET após PUT.
+* Consultar via GET após DELETE.
+
+### Observação importante
+
+Durante a execução foi observado que POST, PUT e DELETE retornam sucesso, porém a FakeRESTApi não persiste alteração de estado em consultas posteriores via GET. Esse comportamento foi documentado como ressalva, pois aparenta ser uma limitação da API fake/mock utilizada no desafio.
+
+---
+
+## 3. Priorização
+
+A priorização dos testes foi baseada em risco, criticidade funcional, impacto para consumidores da API e dependências entre módulos.
+
+### Critérios de priorização
+
+1. Criticidade do recurso
+   A Controller Books foi priorizada por ser o foco principal da entrega e representar a gestão do catálogo de livros da Biblioteca Digital.
+
+2. Impacto no negócio
+   Falhas em Books podem comprometer a gestão do catálogo, impactando autores, capas e futuras funcionalidades consumidoras da API.
+
+3. Risco técnico
+   Foram priorizados cenários que envolvem contrato/schema, persistência, integridade dos dados, validação de payloads e comportamento de erro.
+
+4. Frequência de uso
+   Endpoints de leitura, como GET /Books e GET /Books/{id}, tendem a ser mais utilizados por consumidores da API e receberam prioridade alta.
+
+5. Dependências entre módulos
+   Cenários envolvendo Books, Authors e CoverPhotos foram priorizados quando havia risco de inconsistência por idBook.
+
+### Alta prioridade
+
+* GET /api/v1/Books com sucesso.
+* GET /api/v1/Books/{id} com ID existente.
+* GET /api/v1/Books/{id} com ID inexistente.
+* Validação de schema do objeto Book.
+* POST /api/v1/Books com payload válido.
+* PUT /api/v1/Books/{id} com payload válido.
+* DELETE /api/v1/Books/{id} com ID existente.
+* Validação de persistência após POST, PUT e DELETE.
+* Validação de relacionamento entre Books, Authors e CoverPhotos.
+
+### Média prioridade
+
+* Testes de borda para pageCount, title e publishDate.
+* Testes de segurança básica com script, SQL Injection e manipulação de IDs.
+* Validação de content-type e headers.
+* Testes de performance básica em endpoint principal.
+
+### Baixa prioridade
+
+* Validações exploratórias em módulos não foco, como Users e Activities.
+* Testes avançados de performance, carga e estresse.
+* Testes profundos de segurança, como pentest ou análise de vulnerabilidade completa.
+
+### Justificativa
+
+A prioridade mais alta foi dada aos fluxos e contratos essenciais da Controller Books, pois qualquer falha nesses pontos pode comprometer consumidores futuros da API e impactar diretamente a confiabilidade da entrega. Testes de borda, segurança básica e performance foram tratados como complemento importante, enquanto validações fora do foco principal foram limitadas para manter o escopo aderente ao desafio.
+
+---
+
+## 4. Ambiente e Dados
+
+### Ambiente utilizado
+
+* API pública FakeRESTApi.
+* Base URL: https://fakerestapi.azurewebsites.net
+* Swagger: https://fakerestapi.azurewebsites.net/index.html
+* Controller foco: Books
+* Execução realizada via Postman.
+* Automação realizada via Postman, utilizando scripts JavaScript em Post-response.
+* Possibilidade de execução em lote pelo Collection Runner ou via Newman.
+
+### Variáveis utilizadas no Postman
+
+* baseUrl: https://fakerestapi.azurewebsites.net
+* bookId: 1
+* createdBookId: 501
+* invalidBookId: 999999
+* contentType: application/json; v=1.0
+
+### Dados de teste
+
+#### Livro existente
+
+* id: 1
+* title: Book 1
+
+#### Livro para criação
+
+* id: 501
+* title: Livro Teste QA Emerson
+* description: Livro criado para validação de API no desafio técnico de QA.
+* pageCount: 250
+* excerpt: Trecho de teste para validação do cadastro de livro.
+* publishDate: 2026-06-05T20:00:00Z
+
+#### Livro para atualização
+
+* id: 1
+* title: Book 1 Atualizado QA
+* description: Atualização realizada para validação do endpoint PUT no desafio técnico.
+* pageCount: 321
+* excerpt: Trecho atualizado para teste.
+* publishDate: 2026-06-05T21:00:00Z
+
+#### ID inexistente
+
+* 999999
+
+### Estratégia de dados
+
+* Utilizar IDs existentes para validação de fluxos positivos.
+* Utilizar IDs inexistentes e negativos para testes negativos.
+* Utilizar payloads completos para fluxos felizes.
+* Utilizar payloads incompletos, com dados inválidos e valores de borda para validações negativas.
+* Registrar como limitação que a API não persiste alterações após POST, PUT e DELETE, conforme observado durante a execução.
+
+### Dependências
+
+* Disponibilidade da API pública.
+* Documentação Swagger acessível.
+* Postman instalado para execução manual, automação por scripts e exportação da collection.
+* Node.js instalado apenas caso a execução automatizada seja realizada via Newman pela linha de comando.
+
+---
+
+## 5. Critérios de Entrada e Saída
+
+### Critérios de entrada
+
+* Documentação Swagger disponível e acessível.
+* Base URL da API disponível para execução dos testes.
+* Endpoints da Controller Books publicados.
+* Ambiente minimamente estável para execução.
+* Escopo da Controller Books definido como foco principal.
+* Massa de dados mínima disponível para consulta, como livro com id 1.
+* Ferramentas necessárias instaladas, como navegador e Postman.
+* Casos de teste planejados e priorizados.
+* Critérios mínimos de aceite definidos ou ambiguidades documentadas.
+
+### Critérios de saída
+
+* Casos de teste planejados executados.
+* Evidências coletadas para os cenários executados.
+* Status dos testes registrado na planilha como Aprovado, Aprovado com ressalvas, Reprovado, Bloqueado ou Não iniciado.
+* Bugs, riscos ou limitações documentados.
+* Testes automatizados implementados na Collection Postman.
+* Collection Postman e Environment exportados.
+* README com instruções de execução criado.
+* Relatório final consolidado.
+* Riscos residuais documentados.
+* Não existência de bugs críticos impeditivos sem registro ou aceite formal.
+
+---
+
+## 6. Métricas de Qualidade
+
+### 1. Taxa de execução dos casos de teste
+
+Como será coletada:
+Quantidade de casos executados dividida pelo total de casos planejados.
+
+Resultado da execução:
+19 casos planejados e 19 casos executados.
+
+Threshold aceitável:
+Mínimo de 95% dos casos planejados executados, considerando bloqueios justificados.
+
+---
+
+### 2. Taxa de aprovação dos testes
+
+Como será coletada:
+Quantidade de casos aprovados ou aprovados com ressalvas dividida pelo total de casos executados.
+
+Resultado da execução:
+Todos os casos planejados foram executados. Houve casos aprovados e casos aprovados com ressalvas, sem bug crítico impeditivo identificado.
+
+Threshold aceitável:
+Mínimo de 90% de aprovação para cenários prioritários, desde que falhas críticas estejam documentadas.
+
+---
+
+### 3. Defeitos por severidade
+
+Como será coletada:
+Quantidade de bugs ou ressalvas classificados como Crítico, Alto, Médio e Baixo.
+
+Resultado da execução:
+Não foram identificados bugs críticos impeditivos. Foram registradas ressalvas relacionadas à persistência da FakeRESTApi e à ausência de validações mais rígidas para alguns campos.
+
+Threshold aceitável:
+Nenhum bug crítico aberto sem decisão formal. Bugs altos devem ter plano de ação ou aceite de risco documentado.
+
+---
+
+### 4. Tempo médio de resposta dos endpoints
+
+Como será coletada:
+Medição via Postman para endpoints principais da Controller Books.
+
+Resultado observado:
+No CT-017, o endpoint GET /api/v1/Books retornou sucesso, porém o tempo observado ficou acima da referência inicial de 1000 ms em uma das execuções, sendo registrado como ressalva.
+
+Threshold aceitável:
+Operações de leitura até 1000 ms em cenário básico como referência inicial. Para monitoramento automatizado, foi utilizado limite de até 1500 ms.
+
+---
+
+### 5. Cobertura de endpoints da Controller Books
+
+Como será coletada:
+Quantidade de endpoints testados dividida pelo total de endpoints disponíveis na Controller Books.
+
+Resultado da execução:
+100% dos endpoints principais da Controller Books foram contemplados no plano de testes.
+
+Threshold aceitável:
+100% dos endpoints Books cobertos no plano de testes.
+
+---
+
+### 6. Cobertura de tipos de teste
+
+Como será coletada:
+Verificação dos casos planejados por categoria: funcional, contrato/schema, negativo, borda, segurança básica, performance básica e integração.
+
+Resultado da execução:
+Foram contemplados testes funcionais, contrato/schema, negativos, borda, segurança básica, performance básica, integração e consistência/E2E.
+
+Threshold aceitável:
+Todos os tipos obrigatórios do desafio contemplados no plano de testes.
+
+---
+
+### 7. Taxa de automação dos cenários planejados
+
+Como será coletada:
+Quantidade de cenários com scripts Postman implementados dividida pelo total de cenários planejados.
+
+Resultado da execução:
+Os 19 casos de teste planejados foram implementados na Collection Postman com scripts de validação em Post-response.
+
+Threshold aceitável:
+Automatizar os cenários planejados por meio da Collection Postman, com scripts de validação para status code, schema/contrato, cenários negativos, borda, integração, segurança básica e performance básica.
+
+---
+
+### 8. Bugs reabertos ou inconsistências recorrentes
+
+Como será coletada:
+Acompanhamento dos bugs que retornam após correção ou comportamentos inconsistentes em execuções repetidas.
+
+Resultado da execução:
+Não houve ciclo de correção/reteste nesta entrega. As inconsistências observadas foram registradas como ressalvas.
+
+Threshold aceitável:
+0 bugs críticos reabertos e análise obrigatória para qualquer inconsistência recorrente em endpoint crítico.
+
+---
+
+## 7. Resultado Geral da Execução
+
+Foram planejados e executados 19 casos de teste para a Controller Books.
+
+### Resumo
+
+* Casos planejados: 19
+* Casos executados: 19
+* Casos não iniciados: 0
+
+### Status geral
+
+* CT-001 a CT-003: Aprovados
+* CT-004 a CT-009: Aprovados com ressalvas
+* CT-010 a CT-011: Aprovados
+* CT-012 a CT-015: Aprovados com ressalvas
+* CT-016: Aprovado
+* CT-017: Aprovado com ressalvas
+* CT-018 a CT-019: Aprovados
+
+---
+
+## 8. Principais Ressalvas
+
+As operações POST, PUT e DELETE retornam sucesso, porém a FakeRESTApi não persiste alteração de estado em consultas posteriores via GET.
+
+Também foram observadas aceitações de entradas de borda, como payload incompleto, pageCount negativo, script e tentativa de SQL Injection em campos textuais.
+
+Esses pontos foram registrados como ressalvas, considerando que a API utilizada é uma FakeRESTApi/mock pública.
+
+---
+
+## 9. Automação
+
+A automação foi implementada utilizando Postman, com scripts JavaScript em Post-response.
+
+### Arquivos exportados
+
+* API-Biblioteca-Digital-Books.postman_collection.json
+* FakeRESTApi - Biblioteca Digital.postman_environment
+
+### Execução pelo Postman
+
+1. Importar a Collection no Postman.
+2. Importar o Environment.
+3. Selecionar o Environment FakeRESTApi - Biblioteca Digital.
+4. Executar as requests individualmente ou utilizar Run Collection.
+
+### Execução via Newman
+
+Com Node.js e Newman instalados, executar:
+
+newman run "../03-postman/API-Biblioteca-Digital-Books.postman_collection.json" -e "../03-postman/FakeRESTApi - Biblioteca Digital.postman_environment"
+
+---
+
+## 10. Conclusão
+
+O plano de testes da Controller Books foi executado integralmente. Os principais fluxos funcionais, negativos, contrato/schema, integração, segurança básica e performance básica foram validados.
+
+Não foram encontrados bugs críticos impeditivos. Foram registradas ressalvas relacionadas à persistência da FakeRESTApi e à ausência de validações mais rígidas para alguns campos.
+
+A entrega contempla plano de testes estruturado, evidências em prints, Collection Postman, Environment, automação por scripts Postman e README com instruções de execução.

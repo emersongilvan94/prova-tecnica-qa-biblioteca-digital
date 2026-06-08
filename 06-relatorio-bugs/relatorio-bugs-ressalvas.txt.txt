@@ -1,0 +1,177 @@
+RELATÓRIO DE BUGS E RESSALVAS
+Sistema: API Biblioteca Digital
+Controller foco: Books
+Data da execução: 08/06/2026
+Responsável: Emerson Gilvan
+
+1. Resumo
+
+Durante a execução dos testes da Controller Books, não foram identificados bugs críticos impeditivos.
+
+Foram registradas ressalvas relacionadas ao comportamento da FakeRESTApi, principalmente em operações de escrita e validações de entrada.
+
+2. Ressalvas encontradas
+
+2.1 Operações POST, PUT e DELETE não persistem alteração de estado
+
+Cenários relacionados:
+CT-004 - Criar livro com payload válido
+CT-005 - Validar persistência após criação de livro
+CT-006 - Atualizar livro existente com payload válido
+CT-007 - Validar persistência após atualização de livro
+CT-008 - Deletar livro existente
+CT-009 - Validar persistência após exclusão de livro
+
+Descrição:
+As operações POST, PUT e DELETE retornaram sucesso HTTP 200. Porém, ao realizar uma consulta posterior via GET, as alterações não foram persistidas.
+
+Resultado observado:
+- POST retornou 200 com os dados enviados.
+- PUT retornou 200 com os dados atualizados enviados.
+- DELETE retornou 200 com body vazio.
+- Consultas posteriores via GET retornaram o estado original da FakeRESTApi.
+
+Severidade:
+Média
+
+Classificação:
+Ressalva / Limitação da FakeRESTApi
+
+Impacto:
+Em uma API real, esse comportamento poderia indicar falha de persistência. Porém, por se tratar de uma FakeRESTApi pública/mock, o comportamento foi registrado como limitação da ferramenta utilizada.
+
+Evidências:
+Print Postman CT-004
+Print Postman CT-005
+Print Postman CT-006
+Print Postman CT-007
+Print Postman CT-008
+Print Postman CT-009
+
+
+2.2 API aceita payload incompleto
+
+Cenário relacionado:
+CT-012 - Criar livro com payload incompleto
+
+Descrição:
+Ao enviar um payload contendo apenas id e title, a API retornou HTTP 200 e preencheu os demais campos com valores padrão, como null, 0 e data padrão.
+
+Resultado observado:
+Status 200 retornado com objeto criado parcialmente.
+
+Severidade:
+Média
+
+Classificação:
+Ressalva / Validação de payload
+
+Impacto:
+Em uma API real, caso os campos description, pageCount, excerpt e publishDate sejam obrigatórios, o comportamento poderia permitir cadastro inconsistente.
+
+Evidência:
+Print Postman CT-012
+
+
+2.3 API aceita pageCount negativo
+
+Cenário relacionado:
+CT-013 - Criar livro com pageCount negativo
+
+Descrição:
+Ao enviar pageCount com valor negativo, a API retornou HTTP 200 e aceitou o valor informado.
+
+Resultado observado:
+Status 200 retornado com pageCount -10.
+
+Severidade:
+Média
+
+Classificação:
+Ressalva / Validação de regra de negócio
+
+Impacto:
+Em uma API real, quantidade de páginas negativa não deveria ser aceita para cadastro de livro.
+
+Evidência:
+Print Postman CT-013
+
+
+2.4 API aceita script no campo title
+
+Cenário relacionado:
+CT-014 - Criar livro com script no title
+
+Descrição:
+Ao enviar conteúdo com script no campo title, a API retornou HTTP 200 e devolveu o valor enviado no response.
+
+Resultado observado:
+Status 200 retornado com script no campo title.
+
+Severidade:
+Média
+
+Classificação:
+Ressalva / Segurança básica
+
+Impacto:
+Em uma API real, esse comportamento poderia representar risco caso o conteúdo fosse exibido em uma interface sem sanitização adequada.
+
+Evidência:
+Print Postman CT-014
+
+
+2.5 API aceita tentativa de SQL Injection no campo title
+
+Cenário relacionado:
+CT-015 - Criar livro com tentativa de SQL Injection no título
+
+Descrição:
+Ao enviar uma tentativa simples de SQL Injection no campo title, a API retornou HTTP 200 e devolveu o valor enviado no response.
+
+Resultado observado:
+Status 200 retornado com o valor "' OR '1'='1" no campo title.
+
+Severidade:
+Média
+
+Classificação:
+Ressalva / Segurança básica
+
+Impacto:
+Em uma API real, esse comportamento deveria ser avaliado com maior profundidade para garantir que o valor não seja utilizado de forma insegura em consultas ou telas consumidoras.
+
+Evidência:
+Print Postman CT-015
+
+
+2.6 Tempo de resposta acima da referência inicial
+
+Cenário relacionado:
+CT-017 - Validar tempo de resposta da listagem de livros
+
+Descrição:
+A listagem de livros retornou HTTP 200, porém em uma das execuções o tempo observado ficou acima da referência inicial de 1000 ms.
+
+Resultado observado:
+Status 200 retornado. Tempo observado aproximadamente 1.22 s.
+
+Severidade:
+Média
+
+Classificação:
+Ressalva / Performance básica
+
+Impacto:
+Não foi identificado erro funcional, mas o tempo deve ser acompanhado caso exista requisito formal de performance.
+
+Evidência:
+Print Postman CT-017
+
+3. Conclusão
+
+Não foram encontrados bugs críticos impeditivos durante a execução dos testes.
+
+As ocorrências registradas foram classificadas como ressalvas, considerando o comportamento esperado de uma FakeRESTApi pública/mock.
+
+Em uma API produtiva, recomenda-se avaliar as regras de validação para payloads incompletos, valores negativos, entradas potencialmente maliciosas e persistência real das operações de escrita.
